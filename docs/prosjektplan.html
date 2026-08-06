@@ -1,0 +1,578 @@
+<title>Personlig Økonomi-App — Prosjektplan</title>
+<style>
+  :root {
+    --paper: #eef2f5;
+    --paper-raised: #ffffff;
+    --ink: #1b2733;
+    --ink-soft: #4b5b6b;
+    --ink-faint: #7d8b98;
+    --line: #c7d2da;
+    --line-strong: #9fb0bd;
+    --accent: #2c5f7c;
+    --accent-strong: #17394d;
+    --accent-wash: #dde8ee;
+    --good: #2f7a4f;
+    --good-wash: #dff0e6;
+    --warn: #97730a;
+    --warn-wash: #f6ecd2;
+    --critical: #b33f3f;
+    --critical-wash: #f6dede;
+    --shadow: 0 1px 2px rgba(23, 57, 77, 0.08), 0 4px 14px rgba(23, 57, 77, 0.06);
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --paper: #0f2436;
+      --paper-raised: #13314a;
+      --ink: #e7eef3;
+      --ink-soft: #b7c9d6;
+      --ink-faint: #85a0b3;
+      --line: #2c4c64;
+      --line-strong: #3f6885;
+      --accent: #8fc4e0;
+      --accent-strong: #cfe6f4;
+      --accent-wash: #1a3c53;
+      --good: #7fd9a6;
+      --good-wash: #163d2c;
+      --warn: #e8c877;
+      --warn-wash: #3c3213;
+      --critical: #f0a3a3;
+      --critical-wash: #3f1f1f;
+      --shadow: 0 1px 2px rgba(0, 0, 0, 0.35), 0 8px 24px rgba(0, 0, 0, 0.3);
+    }
+  }
+  :root[data-theme="dark"] {
+    --paper: #0f2436;
+    --paper-raised: #13314a;
+    --ink: #e7eef3;
+    --ink-soft: #b7c9d6;
+    --ink-faint: #85a0b3;
+    --line: #2c4c64;
+    --line-strong: #3f6885;
+    --accent: #8fc4e0;
+    --accent-strong: #cfe6f4;
+    --accent-wash: #1a3c53;
+    --good: #7fd9a6;
+    --good-wash: #163d2c;
+    --warn: #e8c877;
+    --warn-wash: #3c3213;
+    --critical: #f0a3a3;
+    --critical-wash: #3f1f1f;
+    --shadow: 0 1px 2px rgba(0, 0, 0, 0.35), 0 8px 24px rgba(0, 0, 0, 0.3);
+  }
+  :root[data-theme="light"] {
+    --paper: #eef2f5;
+    --paper-raised: #ffffff;
+    --ink: #1b2733;
+    --ink-soft: #4b5b6b;
+    --ink-faint: #7d8b98;
+    --line: #c7d2da;
+    --line-strong: #9fb0bd;
+    --accent: #2c5f7c;
+    --accent-strong: #17394d;
+    --accent-wash: #dde8ee;
+    --good: #2f7a4f;
+    --good-wash: #dff0e6;
+    --warn: #97730a;
+    --warn-wash: #f6ecd2;
+    --critical: #b33f3f;
+    --critical-wash: #f6dede;
+    --shadow: 0 1px 2px rgba(23, 57, 77, 0.08), 0 4px 14px rgba(23, 57, 77, 0.06);
+  }
+
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--paper);
+    background-image:
+      linear-gradient(var(--line) 1px, transparent 1px),
+      linear-gradient(90deg, var(--line) 1px, transparent 1px);
+    background-size: 28px 28px;
+    background-attachment: local;
+    color: var(--ink);
+    font-family: Georgia, "Iowan Old Style", "Palatino Linotype", serif;
+    font-size: 16px;
+    line-height: 1.6;
+  }
+  @media (prefers-reduced-motion: no-preference) {
+    .card { transition: border-color 0.15s ease; }
+  }
+
+  .sheet {
+    max-width: 880px;
+    margin: 0 auto;
+    padding: 40px 24px 80px;
+  }
+
+  .label {
+    font-family: "Segoe UI", system-ui, -apple-system, Helvetica, Arial, sans-serif;
+    text-transform: uppercase;
+    letter-spacing: 0.11em;
+    font-weight: 600;
+  }
+
+  .mono {
+    font-family: ui-monospace, "Cascadia Code", "SFMono-Regular", Consolas, monospace;
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* ---- title block ---- */
+  .titleblock {
+    background: var(--paper-raised);
+    border: 1.5px solid var(--line-strong);
+    box-shadow: var(--shadow);
+    padding: 22px 26px 18px;
+    margin-bottom: 44px;
+  }
+  .titleblock h1 {
+    margin: 0 0 4px;
+    font-family: "Segoe UI", system-ui, -apple-system, Helvetica, Arial, sans-serif;
+    font-weight: 700;
+    font-size: 1.55rem;
+    letter-spacing: 0.01em;
+    text-wrap: balance;
+    color: var(--accent-strong);
+  }
+  .titleblock .sub {
+    color: var(--ink-soft);
+    font-size: 0.95rem;
+    margin-bottom: 16px;
+  }
+  .fields {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 0;
+    border-top: 1px solid var(--line);
+  }
+  .field {
+    padding: 10px 14px 8px 0;
+    border-right: 1px solid var(--line);
+  }
+  .field:last-child { border-right: none; }
+  .field .label { font-size: 0.66rem; color: var(--ink-faint); display: block; margin-bottom: 3px; }
+  .field .val { font-family: "Segoe UI", system-ui, sans-serif; font-size: 0.92rem; font-weight: 600; }
+
+  /* ---- section headers ---- */
+  h2.section {
+    font-family: "Segoe UI", system-ui, -apple-system, Helvetica, Arial, sans-serif;
+    font-size: 0.78rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--accent);
+    font-weight: 700;
+    margin: 56px 0 6px;
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+  }
+  h2.section::after {
+    content: "";
+    flex: 1;
+    height: 1px;
+    background: var(--line-strong);
+  }
+  .section-intro { color: var(--ink-soft); font-size: 0.96rem; max-width: 62ch; margin: 0 0 22px; }
+
+  p { max-width: 68ch; }
+  ul.plain { max-width: 68ch; padding-left: 1.2em; }
+  ul.plain li { margin-bottom: 4px; }
+
+  /* ---- recap chips ---- */
+  .chiprow { display: flex; flex-wrap: wrap; gap: 8px; margin: 0 0 8px; }
+  .chip {
+    font-family: "Segoe UI", system-ui, sans-serif;
+    font-size: 0.78rem;
+    padding: 5px 11px;
+    border: 1px solid var(--line-strong);
+    background: var(--paper-raised);
+    color: var(--ink-soft);
+  }
+
+  /* ---- roadmap ---- */
+  .phase {
+    display: grid;
+    grid-template-columns: 96px 1fr;
+    gap: 0 20px;
+    margin-bottom: 30px;
+  }
+  .phase-rail {
+    font-family: ui-monospace, "Cascadia Code", Consolas, monospace;
+    color: var(--accent);
+    font-weight: 600;
+    font-size: 0.85rem;
+    padding-top: 3px;
+  }
+  .phase-rail .weeks {
+    display: block;
+    color: var(--ink-faint);
+    font-size: 0.72rem;
+    margin-top: 2px;
+  }
+  .phase-body {
+    border-left: 2px solid var(--line-strong);
+    padding-left: 20px;
+    padding-bottom: 4px;
+  }
+  .phase-body h3 {
+    margin: 0 0 4px;
+    font-family: "Segoe UI", system-ui, sans-serif;
+    font-size: 1.02rem;
+    font-weight: 700;
+    color: var(--ink);
+  }
+  .phase-body .goal { color: var(--ink-soft); font-size: 0.92rem; margin: 0 0 10px; }
+  .deliverables { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; }
+  .deliverables li {
+    font-size: 0.9rem;
+    padding-left: 1.3em;
+    position: relative;
+    color: var(--ink);
+  }
+  .deliverables li::before {
+    content: "—";
+    position: absolute;
+    left: 0;
+    color: var(--accent);
+  }
+
+  /* ---- schema cards ---- */
+  .schema-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
+    gap: 14px;
+    margin-top: 4px;
+  }
+  .table-card {
+    background: var(--paper-raised);
+    border: 1px solid var(--line-strong);
+    box-shadow: var(--shadow);
+  }
+  .table-card .tname {
+    font-family: ui-monospace, "Cascadia Code", Consolas, monospace;
+    font-weight: 700;
+    font-size: 0.86rem;
+    color: var(--accent-strong);
+    background: var(--accent-wash);
+    padding: 7px 12px;
+    border-bottom: 1px solid var(--line-strong);
+  }
+  .table-card .flist {
+    list-style: none;
+    margin: 0;
+    padding: 8px 12px 10px;
+    font-family: ui-monospace, "Cascadia Code", Consolas, monospace;
+    font-size: 0.78rem;
+    display: grid;
+    gap: 3px;
+  }
+  .table-card .flist li { display: flex; justify-content: space-between; gap: 8px; }
+  .table-card .fname { color: var(--ink); }
+  .table-card .ftype { color: var(--ink-faint); white-space: nowrap; }
+  .table-card .fk { color: var(--accent); }
+  .table-card .pk::before { content: "● "; color: var(--accent); }
+
+  /* ---- logic callouts ---- */
+  .logic-card {
+    background: var(--paper-raised);
+    border: 1px solid var(--line-strong);
+    box-shadow: var(--shadow);
+    padding: 16px 20px;
+    margin-bottom: 14px;
+  }
+  .logic-card h3 {
+    margin: 0 0 6px;
+    font-family: "Segoe UI", system-ui, sans-serif;
+    font-size: 0.95rem;
+    color: var(--ink);
+  }
+  .logic-card p { margin: 0 0 8px; font-size: 0.92rem; color: var(--ink-soft); max-width: none; }
+  .formula {
+    display: block;
+    font-family: ui-monospace, "Cascadia Code", Consolas, monospace;
+    font-size: 0.85rem;
+    background: var(--accent-wash);
+    color: var(--accent-strong);
+    padding: 8px 12px;
+    border-left: 3px solid var(--accent);
+    overflow-x: auto;
+  }
+  .pill {
+    display: inline-block;
+    font-family: "Segoe UI", system-ui, sans-serif;
+    font-size: 0.72rem;
+    font-weight: 600;
+    padding: 2px 9px;
+    letter-spacing: 0.03em;
+  }
+  .pill.good { background: var(--good-wash); color: var(--good); }
+  .pill.warn { background: var(--warn-wash); color: var(--warn); }
+  .pill.critical { background: var(--critical-wash); color: var(--critical); }
+
+  /* ---- next actions ---- */
+  .actions {
+    background: var(--paper-raised);
+    border: 1.5px solid var(--accent);
+    box-shadow: var(--shadow);
+    padding: 18px 22px;
+  }
+  .actions ol { margin: 8px 0 0; padding-left: 1.3em; }
+  .actions li { margin-bottom: 8px; font-size: 0.94rem; }
+  .actions li b { color: var(--accent-strong); }
+
+  footer {
+    margin-top: 60px;
+    padding-top: 14px;
+    border-top: 1px solid var(--line);
+    font-family: "Segoe UI", system-ui, sans-serif;
+    font-size: 0.72rem;
+    color: var(--ink-faint);
+    letter-spacing: 0.04em;
+  }
+
+  @media (max-width: 640px) {
+    .fields { grid-template-columns: repeat(2, 1fr); }
+    .phase { grid-template-columns: 1fr; }
+    .phase-rail { padding-top: 0; }
+  }
+</style>
+
+<div class="sheet">
+
+  <div class="titleblock">
+    <h1>Personlig Økonomi-App</h1>
+    <div class="sub">Prosjektplan — helhetlig budsjett- og formuesoversikt med automatisk banksynk</div>
+    <div class="fields">
+      <div class="field"><span class="label">Eier</span><span class="val">Aksel Dreyer</span></div>
+      <div class="field"><span class="label">Status</span><span class="val">Planlegging</span></div>
+      <div class="field"><span class="label">Oppstart</span><span class="val">Aug/sep 2026</span></div>
+      <div class="field"><span class="label">Sist oppdatert</span><span class="val mono">2026-08-06</span></div>
+    </div>
+  </div>
+
+  <h2 class="section">Utgangspunkt</h2>
+  <p class="section-intro">
+    DNBs eget dashboard kategoriserer transaksjoner på hele beløpet, ikke på det du faktisk brukte pengene på.
+    Målet er full kontroll med minimal vedlikeholdsbyrde — automatisk henting, fornuftige defaults, og
+    mulighet til å splitte når det trengs.
+  </p>
+  <div class="chiprow">
+    <span class="chip">Backend: FastAPI</span>
+    <span class="chip">DB: PostgreSQL</span>
+    <span class="chip">Bank: Enable Banking (PSD2, restricted mode)</span>
+    <span class="chip">Fonddata: Yahoo Finance / Finnhub</span>
+    <span class="chip">Frontend: SwiftUI eller React Native</span>
+    <span class="chip">Valuta: NOK</span>
+  </div>
+
+  <h2 class="section">Status akkurat nå</h2>
+  <p>
+    Du er midt i registreringen hos Enable Banking og venter på bekreftelses-e-post. Du sitter ikke ved
+    byggemaskinen nå, så denne økten er ren planlegging — koden begynner når du er tilbake ved riktig PC.
+  </p>
+
+  <h2 class="section">Roadmap — 12 uker, fase 1–7</h2>
+  <p class="section-intro">Grovt tidsspenn august–desember 2026. Ukene er en rettesnor, ikke en spikret frist — skyv dem rundt Bac-vurderinger etter behov.</p>
+
+  <div class="phase">
+    <div class="phase-rail">FASE 1<span class="weeks">Uke 1–2</span></div>
+    <div class="phase-body">
+      <h3>Grunnmur</h3>
+      <p class="goal">Et kjørbart skjelett før noe bankdata kommer inn.</p>
+      <ul class="deliverables">
+        <li>Git-repo, mappestruktur, FastAPI-prosjekt med helsesjekk-endepunkt</li>
+        <li>PostgreSQL kjørende lokalt (Docker), første migrasjon med kjerneskjemaet</li>
+        <li>Miljøvariabler/secrets-håndtering (API-nøkler aldri i git)</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="phase">
+    <div class="phase-rail">FASE 2<span class="weeks">Uke 3–4</span></div>
+    <div class="phase-body">
+      <h3>Bank-integrasjon</h3>
+      <p class="goal">Koble til DNB og få ekte transaksjoner inn i databasen.</p>
+      <ul class="deliverables">
+        <li>Enable Banking-konto ferdig verifisert, test-API-kall mot sandbox</li>
+        <li>OAuth/consent-flyt mot DNB (restricted mode, egne kontoer)</li>
+        <li>Jobb som henter kontoer + transaksjoner og lagrer i <span class="mono">transactions</span></li>
+        <li>Enkel dedupliseringslogikk (bankens transaksjons-ID som nøkkel)</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="phase">
+    <div class="phase-rail">FASE 3<span class="weeks">Uke 5–6</span></div>
+    <div class="phase-body">
+      <h3>Kategorisering &amp; splitting</h3>
+      <p class="goal">Løser hovedproblemet: riktig kategori på riktig delbeløp.</p>
+      <ul class="deliverables">
+        <li>Kategoritabell med 2 nivåer (f.eks. Bolig → Leie, Strøm)</li>
+        <li>Enkel regelmotor: match på beskrivelse/mottaker → forslag til kategori</li>
+        <li>Standard: hele beløpet på én kategori, med mulighet til å splitte i UI/API</li>
+        <li>Validering: summen av splitter må alltid være lik transaksjonsbeløpet</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="phase">
+    <div class="phase-rail">FASE 4<span class="weeks">Uke 7–8</span></div>
+    <div class="phase-body">
+      <h3>Budsjettlogikk</h3>
+      <p class="goal">Fra rådata til et budsjett som varsler deg proaktivt.</p>
+      <ul class="deliverables">
+        <li>Månedsmal for budsjett, redigerbar når som helst</li>
+        <li>Endepunkt som regner hittil-forbruk per kategori for inneværende måned</li>
+        <li>Prognosemodell (se logikk under) + rød/gul/grønn status per kategori</li>
+        <li>Inntektsvisning (lønn, freelance) atskilt fra utgiftskategoriene</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="phase">
+    <div class="phase-rail">FASE 5<span class="weeks">Uke 9</span></div>
+    <div class="phase-body">
+      <h3>Fond &amp; studielån</h3>
+      <p class="goal">De to formuespostene som ikke er "vanlig" bankdata.</p>
+      <ul class="deliverables">
+        <li>Integrasjon mot Yahoo Finance/Finnhub for DNB Teknologi A-kurs</li>
+        <li>Cache-jobb (kursdata trenger ikke hentes live på hver request)</li>
+        <li>Studielån: enkel saldo-visning, oppdateres manuelt eller periodisk — ingen kobling til budsjettlogikk</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="phase">
+    <div class="phase-rail">FASE 6<span class="weeks">Uke 10–11</span></div>
+    <div class="phase-body">
+      <h3>iOS-frontend</h3>
+      <p class="goal">Dashboard du faktisk vil åpne hver dag.</p>
+      <ul class="deliverables">
+        <li>Dashboard: fondverdi og budsjett-status øverst, resten under</li>
+        <li>Transaksjonsliste med inline splitting</li>
+        <li>Historikkvisning (måned/år), standard = inneværende måned</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="phase">
+    <div class="phase-rail">FASE 7<span class="weeks">Uke 12</span></div>
+    <div class="phase-body">
+      <h3>Herding &amp; drift</h3>
+      <p class="goal">Gjøre det trygt nok til å stole på i hverdagen.</p>
+      <ul class="deliverables">
+        <li>Feilhåndtering når banktilkoblingen feiler eller consent utløper</li>
+        <li>Enkel autentisering rundt egne API-nøkler/endepunkter</li>
+        <li>Driftsvalg: selvhostet vs. liten skyserver, backup av databasen</li>
+        <li>Buffer til feilsøking og Bac-kollisjoner</li>
+      </ul>
+    </div>
+  </div>
+
+  <h2 class="section">Databaseskjema — konseptuelt</h2>
+  <p class="section-intro">
+    Inntekt modelleres ikke som egen tabell — det er bare transaksjoner kategorisert under en rot-kategori
+    "Inntekt". Færre tabeller å holde synkronisert, samme fleksibilitet.
+  </p>
+
+  <div class="schema-grid">
+    <div class="table-card">
+      <div class="tname">accounts</div>
+      <ul class="flist">
+        <li><span class="fname pk">id</span><span class="ftype">uuid</span></li>
+        <li><span class="fname">bank_name</span><span class="ftype">text</span></li>
+        <li><span class="fname">account_number</span><span class="ftype">text</span></li>
+        <li><span class="fname">currency</span><span class="ftype">char(3)</span></li>
+      </ul>
+    </div>
+    <div class="table-card">
+      <div class="tname">categories</div>
+      <ul class="flist">
+        <li><span class="fname pk">id</span><span class="ftype">uuid</span></li>
+        <li><span class="fname">name</span><span class="ftype">text</span></li>
+        <li><span class="fname fk">parent_id</span><span class="ftype">→ categories</span></li>
+      </ul>
+    </div>
+    <div class="table-card">
+      <div class="tname">transactions</div>
+      <ul class="flist">
+        <li><span class="fname pk">id</span><span class="ftype">uuid</span></li>
+        <li><span class="fname fk">account_id</span><span class="ftype">→ accounts</span></li>
+        <li><span class="fname">bank_tx_id</span><span class="ftype">text, unik</span></li>
+        <li><span class="fname">date</span><span class="ftype">date</span></li>
+        <li><span class="fname">description</span><span class="ftype">text</span></li>
+        <li><span class="fname">amount</span><span class="ftype">numeric</span></li>
+      </ul>
+    </div>
+    <div class="table-card">
+      <div class="tname">transaction_splits</div>
+      <ul class="flist">
+        <li><span class="fname pk">id</span><span class="ftype">uuid</span></li>
+        <li><span class="fname fk">transaction_id</span><span class="ftype">→ transactions</span></li>
+        <li><span class="fname fk">category_id</span><span class="ftype">→ categories</span></li>
+        <li><span class="fname">amount</span><span class="ftype">numeric</span></li>
+      </ul>
+    </div>
+    <div class="table-card">
+      <div class="tname">budget_lines</div>
+      <ul class="flist">
+        <li><span class="fname pk">id</span><span class="ftype">uuid</span></li>
+        <li><span class="fname">month</span><span class="ftype">date (1.)</span></li>
+        <li><span class="fname fk">category_id</span><span class="ftype">→ categories</span></li>
+        <li><span class="fname">planned_amount</span><span class="ftype">numeric</span></li>
+      </ul>
+    </div>
+    <div class="table-card">
+      <div class="tname">fund_price_snapshots</div>
+      <ul class="flist">
+        <li><span class="fname pk">id</span><span class="ftype">uuid</span></li>
+        <li><span class="fname">fund_isin</span><span class="ftype">text</span></li>
+        <li><span class="fname">price</span><span class="ftype">numeric</span></li>
+        <li><span class="fname">fetched_at</span><span class="ftype">timestamptz</span></li>
+      </ul>
+    </div>
+    <div class="table-card">
+      <div class="tname">student_loan_snapshots</div>
+      <ul class="flist">
+        <li><span class="fname pk">id</span><span class="ftype">uuid</span></li>
+        <li><span class="fname">balance</span><span class="ftype">numeric</span></li>
+        <li><span class="fname">as_of_date</span><span class="ftype">date</span></li>
+      </ul>
+    </div>
+  </div>
+
+  <h2 class="section">Nøkkellogikk</h2>
+
+  <div class="logic-card">
+    <h3>Default-splitting</h3>
+    <p>
+      Når en transaksjon hentes fra banken opprettes automatisk <em>én</em> <span class="mono">transaction_split</span>-rad
+      med hele beløpet, kategorisert via regelmotoren (eller "Ukategorisert"). Å splitte betyr å erstatte den
+      ene raden med flere — appen skal aldri kreve manuell splitting for det normale tilfellet.
+    </p>
+    <span class="formula">CHECK: SUM(splits.amount WHERE transaction_id = X) = transactions.amount</span>
+  </div>
+
+  <div class="logic-card">
+    <h3>Prognose og varsel</h3>
+    <p>Lineær fremskrivning fra hittil-forbruk, per kategori (inkl. underkategorier):</p>
+    <span class="formula">projected = spent_so_far × (days_in_month / days_elapsed)</span>
+    <p style="margin-top:10px;">Terskler foreslått som utgangspunkt, juster fritt per kategori:</p>
+    <p>
+      <span class="pill good">Grønn</span> projected &lt; 80 % av budsjett &nbsp;
+      <span class="pill warn">Gul</span> 80–100 % &nbsp;
+      <span class="pill critical">Rød</span> projected &gt; budsjett
+    </p>
+  </div>
+
+  <h2 class="section">Neste konkrete steg</h2>
+  <div class="actions">
+    <p style="margin:0; color:var(--ink-soft); font-size:0.92rem;">Når du er tilbake ved byggemaskinen:</p>
+    <ol>
+      <li><b>Sjekk innboksen</b> for bekreftelse fra Enable Banking — uten den kommer du ikke videre i fase 2.</li>
+      <li><b>Sett opp Fase 1</b> — repo, FastAPI-skjelett, Postgres i Docker, kjerneskjemaet over som første migrasjon.</li>
+      <li><b>Test Enable Banking sandbox</b> så snart kontoen er verifisert, før du kobler til ekte DNB-data.</li>
+    </ol>
+  </div>
+
+  <footer>PROSJEKTPLAN · PERSONLIG ØKONOMI-APP · IKKE-KOMMERSIELL · REV. 2026-08-06</footer>
+</div>

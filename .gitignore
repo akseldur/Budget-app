@@ -1,0 +1,33 @@
+# Secrets
+.env
+.env.*
+!.env.example
+
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# Postgres data volume (if run locally outside docker)
+pgdata/
+
+# IDE
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# iOS / Xcode (added when frontend starts)
+*.xcworkspace
+xcuserdata/
+DerivedData/
+
+# Node (if React Native is chosen)
+node_modules/
