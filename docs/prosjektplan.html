@@ -319,6 +319,49 @@
   .actions li { margin-bottom: 8px; font-size: 0.94rem; }
   .actions li b { color: var(--accent-strong); }
 
+  .phase-status {
+    display: inline-block;
+    font-family: "Segoe UI", system-ui, sans-serif;
+    font-size: 0.66rem;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    padding: 2px 8px;
+    margin-left: 10px;
+    vertical-align: middle;
+  }
+  .phase-status.done { background: var(--good-wash); color: var(--good); }
+  .phase-status.partial { background: var(--warn-wash); color: var(--warn); }
+  .phase-status.pending { background: var(--paper); border: 1px solid var(--line-strong); color: var(--ink-faint); }
+  .deliverables li.done { color: var(--ink-soft); }
+  .deliverables li.done::before { content: "✓"; color: var(--good); }
+
+  .links-row { display: flex; flex-wrap: wrap; gap: 10px; margin: 0 0 8px; }
+  .link-card {
+    display: flex; align-items: center; gap: 10px;
+    background: var(--paper-raised); border: 1px solid var(--line-strong);
+    box-shadow: var(--shadow); padding: 10px 16px;
+    font-family: "Segoe UI", system-ui, sans-serif; font-size: 0.86rem;
+    color: var(--accent-strong); text-decoration: none; font-weight: 600;
+  }
+  .link-card span.sub { display: block; font-weight: 400; color: var(--ink-faint); font-size: 0.74rem; }
+
+  .constraint-card {
+    background: var(--critical-wash);
+    border-left: 3px solid var(--critical);
+    padding: 12px 16px;
+    font-size: 0.9rem;
+    color: var(--ink);
+    margin: 0 0 22px;
+  }
+  .constraint-card b { color: var(--critical); }
+
+  .screens-list { display: grid; gap: 4px; margin: 0 0 22px; }
+  .screens-list .row { display: flex; gap: 10px; font-size: 0.9rem; padding: 6px 0; border-bottom: 1px solid var(--line); }
+  .screens-list .row:last-child { border-bottom: none; }
+  .screens-list .n { font-family: ui-monospace, "Cascadia Code", Consolas, monospace; color: var(--accent); font-weight: 600; width: 1.4em; flex-shrink: 0; }
+  .screens-list .d { color: var(--ink-soft); }
+
   footer {
     margin-top: 60px;
     padding-top: 14px;
@@ -343,10 +386,15 @@
     <div class="sub">Prosjektplan — helhetlig budsjett- og formuesoversikt med automatisk banksynk</div>
     <div class="fields">
       <div class="field"><span class="label">Eier</span><span class="val">Aksel Dreyer</span></div>
-      <div class="field"><span class="label">Status</span><span class="val">Planlegging</span></div>
+      <div class="field"><span class="label">Status</span><span class="val">I utvikling</span></div>
       <div class="field"><span class="label">Oppstart</span><span class="val">Aug/sep 2026</span></div>
       <div class="field"><span class="label">Sist oppdatert</span><span class="val mono">2026-08-06</span></div>
     </div>
+  </div>
+
+  <div class="links-row">
+    <a class="link-card" href="https://github.com/akseldur/Budget-app">GitHub-repo<span class="sub">akseldur/Budget-app</span></a>
+    <a class="link-card" href="https://claude.ai/code/artifact/e284c6f6-ff64-45f0-8513-438f2cfd46ec">UI-mockup<span class="sub">7 skjermer, statisk</span></a>
   </div>
 
   <h2 class="section">Utgangspunkt</h2>
@@ -359,16 +407,24 @@
     <span class="chip">Backend: FastAPI</span>
     <span class="chip">DB: PostgreSQL</span>
     <span class="chip">Bank: Enable Banking (PSD2, restricted mode)</span>
-    <span class="chip">Fonddata: Yahoo Finance / Finnhub</span>
-    <span class="chip">Frontend: SwiftUI eller React Native</span>
+    <span class="chip">Fonddata: Yahoo Finance (nøkkelfri)</span>
+    <span class="chip">Frontend: React Native (Expo)</span>
     <span class="chip">Valuta: NOK</span>
   </div>
 
   <h2 class="section">Status akkurat nå</h2>
   <p>
-    Du er midt i registreringen hos Enable Banking og venter på bekreftelses-e-post. Du sitter ikke ved
-    byggemaskinen nå, så denne økten er ren planlegging — koden begynner når du er tilbake ved riktig PC.
+    Enable Banking sandbox-applikasjon er registrert og verifisert, og hele DNB-samtykkeflyten (auth → sesjon →
+    saldo → transaksjoner) er testet ende-til-ende mot <span class="mono">Mock ASPSP</span> siden DNB ikke finnes
+    i sandbox — bytter til ekte DNB i production/restricted mode senere. Kategoriserings- og prognoselogikken er
+    skrevet og testet (12 grønne tester). Fondskurs hentes live fra Yahoo Finance. Syv UI-skjermer er designet
+    som statisk mockup. Alt er pushet til GitHub.
   </p>
+  <div class="constraint-card">
+    <b>Maskinbegrensning:</b> denne økten kjørte på en arbeidsgiver-forvaltet Windows-maskin uten admin-rettigheter —
+    ingen Docker, PostgreSQL, WSL eller Node.js kunne installeres. Alt som er bygget her er derfor <em>ren logikk uten
+    databaseavhengighet</em>. Database, faktisk React Native-kode og sammenkobling av alt venter til du er på egen maskin.
+  </div>
 
   <h2 class="section">Roadmap — 12 uker, fase 1–7</h2>
   <p class="section-intro">Grovt tidsspenn august–desember 2026. Ukene er en rettesnor, ikke en spikret frist — skyv dem rundt Bac-vurderinger etter behov.</p>
@@ -376,12 +432,12 @@
   <div class="phase">
     <div class="phase-rail">FASE 1<span class="weeks">Uke 1–2</span></div>
     <div class="phase-body">
-      <h3>Grunnmur</h3>
+      <h3>Grunnmur<span class="phase-status partial">Delvis</span></h3>
       <p class="goal">Et kjørbart skjelett før noe bankdata kommer inn.</p>
       <ul class="deliverables">
-        <li>Git-repo, mappestruktur, FastAPI-prosjekt med helsesjekk-endepunkt</li>
-        <li>PostgreSQL kjørende lokalt (Docker), første migrasjon med kjerneskjemaet</li>
-        <li>Miljøvariabler/secrets-håndtering (API-nøkler aldri i git)</li>
+        <li class="done">Git-repo, mappestruktur, FastAPI-prosjekt med helsesjekk-endepunkt</li>
+        <li>PostgreSQL kjørende lokalt (Docker), første migrasjon med kjerneskjemaet — venter på egen maskin</li>
+        <li class="done">Miljøvariabler/secrets-håndtering (API-nøkler aldri i git)</li>
       </ul>
     </div>
   </div>
@@ -389,13 +445,13 @@
   <div class="phase">
     <div class="phase-rail">FASE 2<span class="weeks">Uke 3–4</span></div>
     <div class="phase-body">
-      <h3>Bank-integrasjon</h3>
+      <h3>Bank-integrasjon<span class="phase-status partial">Delvis</span></h3>
       <p class="goal">Koble til DNB og få ekte transaksjoner inn i databasen.</p>
       <ul class="deliverables">
-        <li>Enable Banking-konto ferdig verifisert, test-API-kall mot sandbox</li>
-        <li>OAuth/consent-flyt mot DNB (restricted mode, egne kontoer)</li>
-        <li>Jobb som henter kontoer + transaksjoner og lagrer i <span class="mono">transactions</span></li>
-        <li>Enkel dedupliseringslogikk (bankens transaksjons-ID som nøkkel)</li>
+        <li class="done">Enable Banking-konto ferdig verifisert, test-API-kall mot sandbox</li>
+        <li class="done">OAuth/consent-flyt testet ende-til-ende mot Mock ASPSP — DNB kobles til i production/restricted mode senere</li>
+        <li>Jobb som henter kontoer + transaksjoner og lagrer i <span class="mono">transactions</span> — venter på database</li>
+        <li>Enkel dedupliseringslogikk (bankens transaksjons-ID som nøkkel) — venter på database</li>
       </ul>
     </div>
   </div>
@@ -403,13 +459,13 @@
   <div class="phase">
     <div class="phase-rail">FASE 3<span class="weeks">Uke 5–6</span></div>
     <div class="phase-body">
-      <h3>Kategorisering &amp; splitting</h3>
+      <h3>Kategorisering &amp; splitting<span class="phase-status partial">Delvis</span></h3>
       <p class="goal">Løser hovedproblemet: riktig kategori på riktig delbeløp.</p>
       <ul class="deliverables">
-        <li>Kategoritabell med 2 nivåer (f.eks. Bolig → Leie, Strøm)</li>
-        <li>Enkel regelmotor: match på beskrivelse/mottaker → forslag til kategori</li>
-        <li>Standard: hele beløpet på én kategori, med mulighet til å splitte i UI/API</li>
-        <li>Validering: summen av splitter må alltid være lik transaksjonsbeløpet</li>
+        <li>Kategoritabell med 2 nivåer (f.eks. Bolig → Leie, Strøm) — venter på database</li>
+        <li class="done">Regelmotor: match på beskrivelse/mottaker → forslag til kategori, 11 startregler, 5 tester grønne</li>
+        <li class="done">UI designet: standard hele beløpet på én kategori, splitting i egen editor</li>
+        <li>Validering: summen av splitter må alltid være lik transaksjonsbeløpet — venter på database</li>
       </ul>
     </div>
   </div>
@@ -417,13 +473,13 @@
   <div class="phase">
     <div class="phase-rail">FASE 4<span class="weeks">Uke 7–8</span></div>
     <div class="phase-body">
-      <h3>Budsjettlogikk</h3>
+      <h3>Budsjettlogikk<span class="phase-status partial">Delvis</span></h3>
       <p class="goal">Fra rådata til et budsjett som varsler deg proaktivt.</p>
       <ul class="deliverables">
-        <li>Månedsmal for budsjett, redigerbar når som helst</li>
-        <li>Endepunkt som regner hittil-forbruk per kategori for inneværende måned</li>
-        <li>Prognosemodell (se logikk under) + rød/gul/grønn status per kategori</li>
-        <li>Inntektsvisning (lønn, freelance) atskilt fra utgiftskategoriene</li>
+        <li>Månedsmal for budsjett, redigerbar når som helst — venter på database</li>
+        <li>Endepunkt som regner hittil-forbruk per kategori for inneværende måned — venter på database</li>
+        <li class="done">Prognosemodell (se logikk under) + rød/gul/grønn status, 7 tester grønne</li>
+        <li>Inntektsvisning (lønn, freelance) atskilt fra utgiftskategoriene — designet i UI, venter på database</li>
       </ul>
     </div>
   </div>
@@ -431,12 +487,12 @@
   <div class="phase">
     <div class="phase-rail">FASE 5<span class="weeks">Uke 9</span></div>
     <div class="phase-body">
-      <h3>Fond &amp; studielån</h3>
+      <h3>Fond &amp; studielån<span class="phase-status partial">Delvis</span></h3>
       <p class="goal">De to formuespostene som ikke er "vanlig" bankdata.</p>
       <ul class="deliverables">
-        <li>Integrasjon mot Yahoo Finance/Finnhub for DNB Teknologi A-kurs</li>
-        <li>Cache-jobb (kursdata trenger ikke hentes live på hver request)</li>
-        <li>Studielån: enkel saldo-visning, oppdateres manuelt eller periodisk — ingen kobling til budsjettlogikk</li>
+        <li class="done">Integrasjon mot Yahoo Finance for DNB Teknologi A-kurs (nøkkelfri, testet live)</li>
+        <li>Cache-jobb (kursdata trenger ikke hentes live på hver request) — venter på database</li>
+        <li class="done">Studielån: avklart at Lånekassen ikke tilbyr API for enkeltpersoner (DSOP-API er kun for finansinstitusjoner) — blir manuell saldo-registrering, UI designet</li>
       </ul>
     </div>
   </div>
@@ -444,12 +500,13 @@
   <div class="phase">
     <div class="phase-rail">FASE 6<span class="weeks">Uke 10–11</span></div>
     <div class="phase-body">
-      <h3>iOS-frontend</h3>
+      <h3>iOS-frontend<span class="phase-status partial">Delvis</span></h3>
       <p class="goal">Dashboard du faktisk vil åpne hver dag.</p>
       <ul class="deliverables">
-        <li>Dashboard: fondverdi og budsjett-status øverst, resten under</li>
-        <li>Transaksjonsliste med inline splitting</li>
-        <li>Historikkvisning (måned/år), standard = inneværende måned</li>
+        <li class="done">Design: 7 skjermer som statisk mockup (se lenke øverst) — saldo, fond og budsjett-status øverst</li>
+        <li class="done">Design: transaksjonsliste med inline splitting</li>
+        <li class="done">Design: historikkvisning (måned/år), standard = inneværende måned</li>
+        <li>React Native (Expo)-prosjekt og faktisk kode — venter på maskin med Node.js</li>
       </ul>
     </div>
   </div>
@@ -457,7 +514,7 @@
   <div class="phase">
     <div class="phase-rail">FASE 7<span class="weeks">Uke 12</span></div>
     <div class="phase-body">
-      <h3>Herding &amp; drift</h3>
+      <h3>Herding &amp; drift<span class="phase-status pending">Venter</span></h3>
       <p class="goal">Gjøre det trygt nok til å stole på i hverdagen.</p>
       <ul class="deliverables">
         <li>Feilhåndtering når banktilkoblingen feiler eller consent utløper</li>
@@ -466,6 +523,18 @@
         <li>Buffer til feilsøking og Bac-kollisjoner</li>
       </ul>
     </div>
+  </div>
+
+  <h2 class="section">UI-skjermer — designet</h2>
+  <p class="section-intro">Statisk mockup, se <a href="https://claude.ai/code/artifact/e284c6f6-ff64-45f0-8513-438f2cfd46ec" style="color:var(--accent-strong)">UI-mockup</a>. Farger på status (grønn/gul/rød) er de samme som i prognoselogikken under, så design og backend snakker samme språk.</p>
+  <div class="screens-list">
+    <div class="row"><span class="n">01</span><div><b>Oversikt</b> <span class="d">— saldo, fondverdi og budsjettstatus øverst; varselkort for ukategoriserte transaksjoner</span></div></div>
+    <div class="row"><span class="n">02</span><div><b>Transaksjoner</b> <span class="d">— liste med kategori-chips og splitte-editor</span></div></div>
+    <div class="row"><span class="n">03</span><div><b>Budsjett</b> <span class="d">— full liste per underkategori, rødt tall ved faktisk overskridelse</span></div></div>
+    <div class="row"><span class="n">04</span><div><b>Kategoriser</b> <span class="d">— én ukategorisert transaksjon av gangen, foreslått kategori + hurtigvalg</span></div></div>
+    <div class="row"><span class="n">05</span><div><b>Historikk</b> <span class="d">— søylediagram + månedsliste, standard er inneværende måned</span></div></div>
+    <div class="row"><span class="n">06</span><div><b>Ny transaksjon</b> <span class="d">— manuell registrering (beløp, kategori, konto)</span></div></div>
+    <div class="row"><span class="n">07</span><div><b>Kontoer</b> <span class="d">— tilkoblede DNB-kontoer, studielån-saldo, fond</span></div></div>
   </div>
 
   <h2 class="section">Databaseskjema — konseptuelt</h2>
@@ -566,11 +635,13 @@
 
   <h2 class="section">Neste konkrete steg</h2>
   <div class="actions">
-    <p style="margin:0; color:var(--ink-soft); font-size:0.92rem;">Når du er tilbake ved byggemaskinen:</p>
+    <p style="margin:0; color:var(--ink-soft); font-size:0.92rem;">Når du er tilbake på byggemaskinen (med Docker/Node tilgjengelig):</p>
     <ol>
-      <li><b>Sjekk innboksen</b> for bekreftelse fra Enable Banking — uten den kommer du ikke videre i fase 2.</li>
-      <li><b>Sett opp Fase 1</b> — repo, FastAPI-skjelett, Postgres i Docker, kjerneskjemaet over som første migrasjon.</li>
-      <li><b>Test Enable Banking sandbox</b> så snart kontoen er verifisert, før du kobler til ekte DNB-data.</li>
+      <li><b>Klon repoet</b> — <span class="mono">git clone https://github.com/akseldur/Budget-app.git</span>, følg README for oppsett.</li>
+      <li><b>Postgres + migrasjoner</b> — <span class="mono">docker compose up -d</span>, deretter SQLAlchemy-modeller og første Alembic-migrasjon for skjemaet over.</li>
+      <li><b>Koble sammen bank-flyten</b> — lagre hentede transaksjoner i databasen, kjør dem gjennom regelmotoren automatisk.</li>
+      <li><b>Ny production-app i Enable Banking</b> — aktiver restricted mode, koble til ekte DNB-kontoer.</li>
+      <li><b>React Native (Expo)-prosjekt</b> — bygg skjermene fra mockupen mot det ekte API-et.</li>
     </ol>
   </div>
 
