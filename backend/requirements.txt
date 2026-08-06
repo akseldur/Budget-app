@@ -4,3 +4,7 @@ sqlalchemy
 psycopg[binary]
 alembic
 pydantic-settings
+pyjwt
+cryptography
+httpx
+python-dotenv
