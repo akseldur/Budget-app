@@ -30,10 +30,48 @@ def build_jwt(application_id: str, private_key_path: str, ttl_seconds: int = 360
     )
 
 
-def get_application_status(application_id: str, private_key_path: str) -> httpx.Response:
+def _auth_headers(application_id: str, private_key_path: str) -> dict[str, str]:
     token = build_jwt(application_id, private_key_path)
+    return {"Authorization": f"Bearer {token}", "Accept": "application/json"}
+
+
+def get_application_status(application_id: str, private_key_path: str) -> httpx.Response:
     return httpx.get(
         f"{API_BASE_URL}/application",
-        headers={"Authorization": f"Bearer {token}", "Accept": "application/json"},
+        headers=_auth_headers(application_id, private_key_path),
+        timeout=15,
+    )
+
+
+def start_authorization(
+    application_id: str,
+    private_key_path: str,
+    *,
+    aspsp_name: str,
+    aspsp_country: str,
+    redirect_url: str,
+    state: str,
+    valid_until: str,
+    psu_type: str = "personal",
+) -> httpx.Response:
+    return httpx.post(
+        f"{API_BASE_URL}/auth",
+        headers=_auth_headers(application_id, private_key_path),
+        json={
+            "access": {"valid_until": valid_until},
+            "aspsp": {"name": aspsp_name, "country": aspsp_country},
+            "state": state,
+            "redirect_url": redirect_url,
+            "psu_type": psu_type,
+        },
+        timeout=15,
+    )
+
+
+def exchange_code_for_session(application_id: str, private_key_path: str, code: str) -> httpx.Response:
+    return httpx.post(
+        f"{API_BASE_URL}/sessions",
+        headers=_auth_headers(application_id, private_key_path),
+        json={"code": code},
         timeout=15,
     )
