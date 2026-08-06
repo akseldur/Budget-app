@@ -75,3 +75,37 @@ def exchange_code_for_session(application_id: str, private_key_path: str, code: 
         json={"code": code},
         timeout=15,
     )
+
+
+def get_balances(application_id: str, private_key_path: str, account_uid: str) -> httpx.Response:
+    return httpx.get(
+        f"{API_BASE_URL}/accounts/{account_uid}/balances",
+        headers=_auth_headers(application_id, private_key_path),
+        timeout=15,
+    )
+
+
+def get_transactions(
+    application_id: str,
+    private_key_path: str,
+    account_uid: str,
+    *,
+    date_from: str | None = None,
+    date_to: str | None = None,
+    continuation_key: str | None = None,
+) -> httpx.Response:
+    params = {
+        k: v
+        for k, v in {
+            "date_from": date_from,
+            "date_to": date_to,
+            "continuation_key": continuation_key,
+        }.items()
+        if v is not None
+    }
+    return httpx.get(
+        f"{API_BASE_URL}/accounts/{account_uid}/transactions",
+        headers=_auth_headers(application_id, private_key_path),
+        params=params,
+        timeout=15,
+    )
