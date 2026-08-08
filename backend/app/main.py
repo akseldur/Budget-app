@@ -3,6 +3,7 @@ from fastapi import Depends, FastAPI
 from app.routes.accounts import router as accounts_router
 from app.routes.auth import router as auth_router
 from app.routes.budget import router as budget_router
+from app.routes.categories import router as categories_router
 from app.routes.funds import router as funds_router
 from app.routes.student_loan import router as student_loan_router
 from app.routes.transactions import router as transactions_router
@@ -21,6 +22,7 @@ app.include_router(accounts_router, dependencies=_protected)
 app.include_router(transactions_router, dependencies=_protected)
 app.include_router(budget_router, dependencies=_protected)
 app.include_router(student_loan_router, dependencies=_protected)
+app.include_router(categories_router, dependencies=_protected)
 
 
 @app.get("/health")
