@@ -1,8 +1,8 @@
 """Registrering av bankkontoer og henting av kontoliste.
 
-Feltnavnene lest ut av /accounts/{uid}/details i register_account() er ikke
-verifisert mot en ekte Enable Banking-respons ennå (se merknaden i
-app/sync/transactions.py) - juster ved behov når nøkkelen er på plass.
+/accounts/{uid}/details returnerer verken banknavn eller alltid en IBAN (verifisert
+mot Mock ASPSP-sandbox 2026-08-08) - banknavnet må derfor komme fra kalleren, som
+allerede har det fra "aspsp"-feltet i sesjonen returnert av /auth/enablebanking/callback.
 """
 
 import uuid
@@ -32,6 +32,7 @@ class AccountOut(BaseModel):
 
 class RegisterAccountRequest(BaseModel):
     enablebanking_account_uid: str
+    bank_name: str
 
 
 @router.get("")
@@ -51,7 +52,7 @@ def register_account(body: RegisterAccountRequest, db: Session = Depends(get_db)
     return upsert_account(
         db,
         enablebanking_account_uid=body.enablebanking_account_uid,
-        bank_name=details.get("bank_name") or details.get("name") or "",
+        bank_name=body.bank_name,
         account_number=(details.get("account_id") or {}).get("iban") or "",
         currency=details.get("currency") or "",
     )

@@ -1,10 +1,8 @@
 """Lagrer transaksjoner hentet fra banken og kategoriserer dem automatisk.
 
-Feltnavnene i parse_enablebanking_transaction() følger Berlin Group/PSD2-
-konvensjonen som Enable Banking bygger på, men er IKKE verifisert mot en ekte
-sandbox-respons ennå (ingen aktiv nøkkel på denne maskinen, se LES-MEG.txt).
-Kjør scripts/test_enablebanking_accounts.py mot en ekte sesjon når nøkkelen er
-på plass, og juster feltnavnene her hvis responsen ser annerledes ut.
+Feltnavnene i parse_enablebanking_transaction() er verifisert mot en ekte
+respons fra Mock ASPSP i sandbox (2026-08-08). Ekte DNB i production/restricted
+mode kan i prinsippet avvike noe - spot-sjekk igjen når den kobles til.
 """
 
 import uuid
@@ -28,11 +26,19 @@ class BankTransaction:
 
 def parse_enablebanking_transaction(raw: dict) -> BankTransaction:
     amount = abs(float(raw["transaction_amount"]["amount"]))
-    if raw.get("credit_debit_indicator") == "DBIT":
+    is_debit = raw.get("credit_debit_indicator") == "DBIT"
+    if is_debit:
         amount = -amount
 
     booking_date = raw.get("booking_date") or raw["value_date"]
-    description = (raw.get("remittance_information_unstructured") or "").strip() or "(uten beskrivelse)"
+
+    # Motpartens navn (hvem pengene gikk til/kom fra) er en langt bedre kilde til
+    # beskrivelse for regelmotoren enn remittance_information, som i praksis kan
+    # være en fritekst-referanse uten butikknavn.
+    counterparty = raw.get("creditor") if is_debit else raw.get("debtor")
+    counterparty_name = (counterparty or {}).get("name")
+    remittance_text = " ".join(line for line in (raw.get("remittance_information") or []) if line)
+    description = counterparty_name or remittance_text or "(uten beskrivelse)"
 
     return BankTransaction(
         bank_tx_id=raw["entry_reference"],

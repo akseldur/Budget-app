@@ -64,19 +64,24 @@ def test_ingest_ukjent_beskrivelse_blir_ukategorisert(db):
 
 
 def test_parse_enablebanking_transaction_debet_blir_negativ():
+    # Faktisk responsform fra Mock ASPSP (sandbox), verifisert 2026-08-08.
     raw = {
-        "entry_reference": "eb-1",
+        "entry_reference": "1javb",
         "booking_date": "2026-08-05",
-        "transaction_amount": {"amount": "249.50", "currency": "NOK"},
+        "value_date": "2026-08-03",
+        "transaction_amount": {"amount": "9.54", "currency": "EUR"},
         "credit_debit_indicator": "DBIT",
-        "remittance_information_unstructured": "REMA 1000 OSLO",
+        "creditor": {"name": "REMA 1000 OSLO"},
+        "debtor": None,
+        "remittance_information": ["REMA 1000 OSLO-DBIT-9.54-1javb"],
     }
 
     parsed = parse_enablebanking_transaction(raw)
 
-    assert parsed.amount == -249.5
-    assert parsed.bank_tx_id == "eb-1"
+    assert parsed.amount == -9.54
+    assert parsed.bank_tx_id == "1javb"
     assert parsed.date == date(2026, 8, 5)
+    assert parsed.description == "REMA 1000 OSLO"
 
 
 def test_parse_enablebanking_transaction_kredit_blir_positiv():
@@ -85,13 +90,31 @@ def test_parse_enablebanking_transaction_kredit_blir_positiv():
         "value_date": "2026-08-01",
         "transaction_amount": {"amount": "35000", "currency": "NOK"},
         "credit_debit_indicator": "CRDT",
-        "remittance_information_unstructured": "LØNN AKER SOLUTIONS",
+        "creditor": None,
+        "debtor": {"name": "AKER SOLUTIONS"},
+        "remittance_information": ["LØNN"],
     }
 
     parsed = parse_enablebanking_transaction(raw)
 
     assert parsed.amount == 35000
     assert parsed.date == date(2026, 8, 1)
+    assert parsed.description == "AKER SOLUTIONS"
+
+
+def test_parse_enablebanking_transaction_uten_motpartsnavn_faller_tilbake_pa_remittance():
+    raw = {
+        "entry_reference": "eb-3",
+        "booking_date": "2026-08-02",
+        "transaction_amount": {"amount": "100", "currency": "NOK"},
+        "credit_debit_indicator": "DBIT",
+        "creditor": None,
+        "remittance_information": ["Faktura 123"],
+    }
+
+    parsed = parse_enablebanking_transaction(raw)
+
+    assert parsed.description == "Faktura 123"
 
 
 def test_replace_splits_krever_at_summen_stemmer(db):
