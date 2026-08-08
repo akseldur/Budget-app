@@ -9,15 +9,19 @@ import time
 import uuid
 from datetime import UTC, datetime, timedelta
 
-from fastapi import APIRouter, HTTPException, Query
+from fastapi import APIRouter, Depends, HTTPException, Query
 from fastapi.responses import RedirectResponse
+from sqlalchemy.orm import Session
 
 from app.config import (
     ENABLE_BANKING_APPLICATION_ID,
     ENABLE_BANKING_PRIVATE_KEY_PATH,
     ENABLE_BANKING_REDIRECT_URL,
 )
+from app.db import get_db
 from app.integrations.enablebanking import exchange_code_for_session, start_authorization
+from app.routes.accounts import AccountOut
+from app.sync.accounts import upsert_account
 
 router = APIRouter(prefix="/auth/enablebanking", tags=["enablebanking"])
 
@@ -64,6 +68,7 @@ def callback(
     state: str | None = Query(default=None),
     error: str | None = Query(default=None),
     error_description: str | None = Query(default=None),
+    db: Session = Depends(get_db),
 ) -> dict:
     if error:
         raise HTTPException(status_code=400, detail=f"{error}: {error_description}")
@@ -81,4 +86,22 @@ def callback(
     if response.status_code != 200:
         raise HTTPException(status_code=502, detail=response.text)
 
-    return response.json()
+    session = response.json()
+    bank_name = (session.get("aspsp") or {}).get("name") or ASPSP_NAME
+
+    # Sesjonen inneholder allerede full kontoinfo (uid, currency, evt. account_id/iban)
+    # for hver konto samtykket til - ingen egen /accounts/{uid}/details-runde nødvendig her.
+    registered_accounts = [
+        AccountOut.model_validate(
+            upsert_account(
+                db,
+                enablebanking_account_uid=account["uid"],
+                bank_name=bank_name,
+                account_number=(account.get("account_id") or {}).get("iban") or "",
+                currency=account.get("currency") or "",
+            )
+        )
+        for account in session.get("accounts", [])
+    ]
+
+    return {"session_id": session.get("session_id"), "accounts": registered_accounts}
