@@ -100,6 +100,34 @@ def ingest_transactions(db: Session, account: Account, transactions: Iterable[Ba
     return created
 
 
+def create_manual_transaction(
+    db: Session,
+    account: Account,
+    *,
+    date: date_,
+    description: str,
+    amount: float,
+    category_id: uuid.UUID | None,
+) -> Transaction:
+    """Manuell registrering (skjerm "Ny transaksjon") - ikke hentet fra banken.
+
+    bank_tx_id må være unik og non-null i skjemaet; genererer en syntetisk en
+    siden manuelle transaksjoner ikke har noen ekte bank-referanse.
+    """
+    transaction = Transaction(
+        account_id=account.id,
+        bank_tx_id=f"manual-{uuid.uuid4()}",
+        date=date,
+        description=description,
+        amount=amount,
+        splits=[TransactionSplit(category_id=category_id, amount=amount)],
+    )
+    db.add(transaction)
+    db.commit()
+    db.refresh(transaction)
+    return transaction
+
+
 def replace_splits(
     db: Session, transaction: Transaction, splits: list[tuple[uuid.UUID | None, float]]
 ) -> Transaction:

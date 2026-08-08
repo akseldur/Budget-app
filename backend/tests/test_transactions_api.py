@@ -41,3 +41,44 @@ def test_hent_ukjent_transaksjon_gir_404(db):
         assert response.status_code == 404
     finally:
         app.dependency_overrides.clear()
+
+
+def test_opprett_manuell_transaksjon(db):
+    account = Account(bank_name="DNB", account_number="123", currency="NOK", enablebanking_account_uid="uid-m1")
+    db.add(account)
+    db.commit()
+    db.refresh(account)
+
+    try:
+        response = _client(db).post(
+            "/transactions",
+            json={
+                "account_id": str(account.id),
+                "date": "2026-08-06",
+                "description": "Kontantuttak bursdagsgave",
+                "amount": -150,
+            },
+        )
+        assert response.status_code == 200
+        body = response.json()
+        assert body["description"] == "Kontantuttak bursdagsgave"
+        assert body["amount"] == -150.0
+        assert body["splits"][0]["category_id"] is None
+    finally:
+        app.dependency_overrides.clear()
+
+
+def test_opprett_manuell_transaksjon_ukjent_konto_gir_404(db):
+    try:
+        response = _client(db).post(
+            "/transactions",
+            json={
+                "account_id": "00000000-0000-0000-0000-000000000000",
+                "date": "2026-08-06",
+                "description": "Test",
+                "amount": -50,
+            },
+        )
+        assert response.status_code == 404
+    finally:
+        app.dependency_overrides.clear()

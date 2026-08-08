@@ -12,7 +12,12 @@ from app.db import get_db
 from app.db.models import Account, Transaction
 from app.integrations.enablebanking import get_transactions
 from app.integrations.errors import raise_for_enablebanking_error
-from app.sync.transactions import ingest_transactions, parse_enablebanking_transaction, replace_splits
+from app.sync.transactions import (
+    create_manual_transaction,
+    ingest_transactions,
+    parse_enablebanking_transaction,
+    replace_splits,
+)
 
 router = APIRouter(tags=["transactions"])
 
@@ -41,6 +46,14 @@ class SplitIn(BaseModel):
     amount: float
 
 
+class ManualTransactionIn(BaseModel):
+    account_id: uuid.UUID
+    date: date
+    description: str
+    amount: float
+    category_id: uuid.UUID | None = None
+
+
 @router.get("/transactions")
 def list_transactions(db: Session = Depends(get_db)) -> list[TransactionOut]:
     return list(db.query(Transaction).order_by(Transaction.date.desc()).all())
@@ -52,6 +65,22 @@ def get_transaction(transaction_id: uuid.UUID, db: Session = Depends(get_db)) ->
     if transaction is None:
         raise HTTPException(status_code=404, detail="Ukjent transaksjon")
     return transaction
+
+
+@router.post("/transactions")
+def create_transaction(body: ManualTransactionIn, db: Session = Depends(get_db)) -> TransactionOut:
+    account = db.get(Account, body.account_id)
+    if account is None:
+        raise HTTPException(status_code=404, detail="Ukjent konto")
+
+    return create_manual_transaction(
+        db,
+        account,
+        date=body.date,
+        description=body.description,
+        amount=body.amount,
+        category_id=body.category_id,
+    )
 
 
 @router.post("/accounts/{account_id}/sync-transactions")
