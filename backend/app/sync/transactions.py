@@ -1,8 +1,10 @@
 """Lagrer transaksjoner hentet fra banken og kategoriserer dem automatisk.
 
-Feltnavnene i parse_enablebanking_transaction() er verifisert mot en ekte
-respons fra Mock ASPSP i sandbox (2026-08-08). Ekte DNB i production/restricted
-mode kan i prinsippet avvike noe - spot-sjekk igjen når den kobles til.
+Feltnavnene i parse_enablebanking_transaction() er verifisert mot både Mock
+ASPSP i sandbox og ekte DNB i production (2026-08-08). De to avviker på ett
+punkt: Mock ASPSP fyller ut entry_reference og creditor/debtor.name, mens ekte
+DNB har disse som null og bruker transaction_id + remittance_information i
+stedet - derfor prøves begge par.
 """
 
 import uuid
@@ -40,8 +42,14 @@ def parse_enablebanking_transaction(raw: dict) -> BankTransaction:
     remittance_text = " ".join(line for line in (raw.get("remittance_information") or []) if line)
     description = counterparty_name or remittance_text or "(uten beskrivelse)"
 
+    # entry_reference (Mock ASPSP) og transaction_id (ekte DNB) er aldri begge
+    # utfylt samtidig i det vi har sett - bruk den som faktisk finnes.
+    bank_tx_id = raw.get("entry_reference") or raw.get("transaction_id")
+    if not bank_tx_id:
+        raise ValueError(f"Transaksjon mangler både entry_reference og transaction_id: {raw!r}")
+
     return BankTransaction(
-        bank_tx_id=raw["entry_reference"],
+        bank_tx_id=bank_tx_id,
         date=date_.fromisoformat(booking_date),
         description=description,
         amount=amount,

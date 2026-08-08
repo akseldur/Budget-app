@@ -15,6 +15,8 @@ from sqlalchemy.orm import Session
 
 from app.config import (
     ENABLE_BANKING_APPLICATION_ID,
+    ENABLE_BANKING_ASPSP_COUNTRY,
+    ENABLE_BANKING_ASPSP_NAME,
     ENABLE_BANKING_PRIVATE_KEY_PATH,
     ENABLE_BANKING_REDIRECT_URL,
 )
@@ -28,9 +30,6 @@ router = APIRouter(prefix="/auth/enablebanking", tags=["enablebanking"])
 
 _STATE_TTL_SECONDS = 900
 _pending_states: dict[str, float] = {}
-
-ASPSP_NAME = "Mock ASPSP"
-ASPSP_COUNTRY = "NO"
 
 
 def _purge_expired_states() -> None:
@@ -51,8 +50,8 @@ def start() -> RedirectResponse:
     response = start_authorization(
         ENABLE_BANKING_APPLICATION_ID,
         ENABLE_BANKING_PRIVATE_KEY_PATH,
-        aspsp_name=ASPSP_NAME,
-        aspsp_country=ASPSP_COUNTRY,
+        aspsp_name=ENABLE_BANKING_ASPSP_NAME,
+        aspsp_country=ENABLE_BANKING_ASPSP_COUNTRY,
         redirect_url=ENABLE_BANKING_REDIRECT_URL,
         state=state,
         valid_until=valid_until,
@@ -88,7 +87,7 @@ def callback(
         raise HTTPException(status_code=502, detail=parse_upstream_error(response))
 
     session = response.json()
-    bank_name = (session.get("aspsp") or {}).get("name") or ASPSP_NAME
+    bank_name = (session.get("aspsp") or {}).get("name") or ENABLE_BANKING_ASPSP_NAME
 
     # Sesjonen inneholder allerede full kontoinfo (uid, currency, evt. account_id/iban)
     # for hver konto samtykket til - ingen egen /accounts/{uid}/details-runde nødvendig her.

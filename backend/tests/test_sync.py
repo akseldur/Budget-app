@@ -117,6 +117,43 @@ def test_parse_enablebanking_transaction_uten_motpartsnavn_faller_tilbake_pa_rem
     assert parsed.description == "Faktura 123"
 
 
+def test_parse_enablebanking_transaction_ekte_dnb_uten_entry_reference():
+    # Faktisk responsform fra ekte DNB i production/restricted mode, verifisert
+    # 2026-08-08: entry_reference og creditor/debtor er null, transaction_id og
+    # remittance_information er det som faktisk er utfylt.
+    raw = {
+        "entry_reference": None,
+        "transaction_id": "MDExNl8wMDI5NDQ1NjY4NTIxXzAwMDAwMDE",
+        "booking_date": "2026-08-07",
+        "value_date": "2026-08-07",
+        "transaction_amount": {"currency": "NOK", "amount": "70.43"},
+        "credit_debit_indicator": "DBIT",
+        "creditor": None,
+        "debtor": None,
+        "remittance_information": ["Varekjøp, Kl. 11.35 Versjon 1 Aut. 349259, 3142 Kværner St Kjøtteinsveg Stord"],
+    }
+
+    parsed = parse_enablebanking_transaction(raw)
+
+    assert parsed.bank_tx_id == "MDExNl8wMDI5NDQ1NjY4NTIxXzAwMDAwMDE"
+    assert parsed.amount == -70.43
+    assert parsed.description == "Varekjøp, Kl. 11.35 Versjon 1 Aut. 349259, 3142 Kværner St Kjøtteinsveg Stord"
+
+
+def test_parse_enablebanking_transaction_uten_id_gir_feil():
+    raw = {
+        "entry_reference": None,
+        "transaction_id": None,
+        "booking_date": "2026-08-07",
+        "transaction_amount": {"currency": "NOK", "amount": "10"},
+        "credit_debit_indicator": "DBIT",
+        "remittance_information": ["Noe"],
+    }
+
+    with pytest.raises(ValueError):
+        parse_enablebanking_transaction(raw)
+
+
 def test_replace_splits_krever_at_summen_stemmer(db):
     account = _make_account(db, uid="test-uid-4")
     tx = BankTransaction(bank_tx_id="tx-4", date=date(2026, 8, 5), description="UKJENT", amount=-300)
