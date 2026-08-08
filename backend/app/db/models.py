@@ -21,11 +21,13 @@ def _uuid_pk() -> Mapped[uuid.UUID]:
 
 class Account(Base):
     __tablename__ = "accounts"
+    __table_args__ = (UniqueConstraint("enablebanking_account_uid", name="uq_accounts_enablebanking_account_uid"),)
 
     id: Mapped[uuid.UUID] = _uuid_pk()
     bank_name: Mapped[str] = mapped_column(String, nullable=False)
     account_number: Mapped[str] = mapped_column(String, nullable=False)
     currency: Mapped[str] = mapped_column(String(3), nullable=False)
+    enablebanking_account_uid: Mapped[str] = mapped_column(String, nullable=False)
 
     transactions: Mapped[list["Transaction"]] = relationship(back_populates="account")
 

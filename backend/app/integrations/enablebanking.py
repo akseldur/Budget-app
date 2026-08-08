@@ -77,6 +77,14 @@ def exchange_code_for_session(application_id: str, private_key_path: str, code: 
     )
 
 
+def get_account_details(application_id: str, private_key_path: str, account_uid: str) -> httpx.Response:
+    return httpx.get(
+        f"{API_BASE_URL}/accounts/{account_uid}/details",
+        headers=_auth_headers(application_id, private_key_path),
+        timeout=15,
+    )
+
+
 def get_balances(application_id: str, private_key_path: str, account_uid: str) -> httpx.Response:
     return httpx.get(
         f"{API_BASE_URL}/accounts/{account_uid}/balances",
