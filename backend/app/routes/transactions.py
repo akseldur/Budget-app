@@ -46,6 +46,14 @@ def list_transactions(db: Session = Depends(get_db)) -> list[TransactionOut]:
     return list(db.query(Transaction).order_by(Transaction.date.desc()).all())
 
 
+@router.get("/transactions/{transaction_id}")
+def get_transaction(transaction_id: uuid.UUID, db: Session = Depends(get_db)) -> TransactionOut:
+    transaction = db.get(Transaction, transaction_id)
+    if transaction is None:
+        raise HTTPException(status_code=404, detail="Ukjent transaksjon")
+    return transaction
+
+
 @router.post("/accounts/{account_id}/sync-transactions")
 def sync_transactions(
     account_id: uuid.UUID,
