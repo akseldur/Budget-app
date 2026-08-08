@@ -20,6 +20,7 @@ from app.config import (
 )
 from app.db import get_db
 from app.integrations.enablebanking import exchange_code_for_session, start_authorization
+from app.integrations.errors import parse_upstream_error
 from app.routes.accounts import AccountOut
 from app.sync.accounts import upsert_account
 
@@ -57,7 +58,7 @@ def start() -> RedirectResponse:
         valid_until=valid_until,
     )
     if response.status_code != 200:
-        raise HTTPException(status_code=502, detail=response.text)
+        raise HTTPException(status_code=502, detail=parse_upstream_error(response))
 
     return RedirectResponse(response.json()["url"])
 
@@ -84,7 +85,7 @@ def callback(
         ENABLE_BANKING_APPLICATION_ID, ENABLE_BANKING_PRIVATE_KEY_PATH, code
     )
     if response.status_code != 200:
-        raise HTTPException(status_code=502, detail=response.text)
+        raise HTTPException(status_code=502, detail=parse_upstream_error(response))
 
     session = response.json()
     bank_name = (session.get("aspsp") or {}).get("name") or ASPSP_NAME

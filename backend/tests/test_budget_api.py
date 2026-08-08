@@ -8,6 +8,7 @@ from app.db import get_db
 from app.db.models import Account, Category
 from app.main import app
 from app.routes.budget import _days_elapsed, _next_month
+from app.security import require_api_key
 from app.sync.transactions import BankTransaction, ingest_transactions
 
 
@@ -30,6 +31,7 @@ def test_next_month_wraps_arstall():
 
 def test_budget_status_beregner_forbruk_fra_kategoriserte_transaksjoner(db):
     app.dependency_overrides[get_db] = lambda: db
+    app.dependency_overrides[require_api_key] = lambda: None
     client = TestClient(app)
     try:
         account = Account(bank_name="DNB", account_number="123", currency="NOK", enablebanking_account_uid="uid-b1")
@@ -63,6 +65,7 @@ def test_budget_status_beregner_forbruk_fra_kategoriserte_transaksjoner(db):
 
 def test_budget_lines_avviser_maned_som_ikke_er_forste_i_maneden(db):
     app.dependency_overrides[get_db] = lambda: db
+    app.dependency_overrides[require_api_key] = lambda: None
     client = TestClient(app)
     try:
         category = Category(name="Bolig", parent_id=None)

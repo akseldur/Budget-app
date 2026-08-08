@@ -11,6 +11,7 @@ from app.config import ENABLE_BANKING_APPLICATION_ID, ENABLE_BANKING_PRIVATE_KEY
 from app.db import get_db
 from app.db.models import Account, Transaction
 from app.integrations.enablebanking import get_transactions
+from app.integrations.errors import raise_for_enablebanking_error
 from app.sync.transactions import ingest_transactions, parse_enablebanking_transaction, replace_splits
 
 router = APIRouter(tags=["transactions"])
@@ -63,8 +64,7 @@ def sync_transactions(
         date_from=date_from,
         date_to=date_to,
     )
-    if response.status_code != 200:
-        raise HTTPException(status_code=502, detail=response.text)
+    raise_for_enablebanking_error(response)
 
     raw_transactions = response.json().get("transactions", [])
     parsed = [parse_enablebanking_transaction(t) for t in raw_transactions]

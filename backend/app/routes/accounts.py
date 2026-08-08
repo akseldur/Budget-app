@@ -7,7 +7,7 @@ allerede har det fra "aspsp"-feltet i sesjonen returnert av /auth/enablebanking/
 
 import uuid
 
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends
 from pydantic import BaseModel
 from sqlalchemy.orm import Session
 
@@ -15,6 +15,7 @@ from app.config import ENABLE_BANKING_APPLICATION_ID, ENABLE_BANKING_PRIVATE_KEY
 from app.db import get_db
 from app.db.models import Account
 from app.integrations.enablebanking import get_account_details
+from app.integrations.errors import raise_for_enablebanking_error
 from app.sync.accounts import upsert_account
 
 router = APIRouter(prefix="/accounts", tags=["accounts"])
@@ -45,8 +46,7 @@ def register_account(body: RegisterAccountRequest, db: Session = Depends(get_db)
     response = get_account_details(
         ENABLE_BANKING_APPLICATION_ID, ENABLE_BANKING_PRIVATE_KEY_PATH, body.enablebanking_account_uid
     )
-    if response.status_code != 200:
-        raise HTTPException(status_code=502, detail=response.text)
+    raise_for_enablebanking_error(response)
 
     details = response.json()
     return upsert_account(

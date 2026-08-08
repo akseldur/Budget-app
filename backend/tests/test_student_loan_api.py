@@ -4,10 +4,12 @@ from fastapi.testclient import TestClient
 
 from app.db import get_db
 from app.main import app
+from app.security import require_api_key
 
 
 def _client(db) -> TestClient:
     app.dependency_overrides[get_db] = lambda: db
+    app.dependency_overrides[require_api_key] = lambda: None
     return TestClient(app)
 
 

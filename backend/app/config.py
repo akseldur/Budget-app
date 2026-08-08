@@ -5,6 +5,7 @@ from dotenv import load_dotenv
 load_dotenv()
 
 DATABASE_URL = os.environ["DATABASE_URL"]
+APP_API_KEY = os.environ["APP_API_KEY"]
 
 ENABLE_BANKING_APPLICATION_ID = os.environ["ENABLE_BANKING_APPLICATION_ID"]
 ENABLE_BANKING_PRIVATE_KEY_PATH = os.environ["ENABLE_BANKING_PRIVATE_KEY_PATH"]
