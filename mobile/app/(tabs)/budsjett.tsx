@@ -1,4 +1,6 @@
-import { useMemo, useState } from 'react';
+import { Ionicons } from '@expo/vector-icons';
+import { router, useFocusEffect } from 'expo-router';
+import { useCallback, useMemo, useState } from 'react';
 import { ActivityIndicator, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
 import { Card } from '@/components/Card';
@@ -20,6 +22,13 @@ export default function BudsjettScreen() {
   const [month, setMonth] = useState(currentMonthStart());
   const { data, loading, refreshing, refresh } = useAsync(() => loadData(month), [month]);
 
+  useFocusEffect(
+    useCallback(() => {
+      refresh();
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [month]),
+  );
+
   const grouped = useMemo(() => {
     const categories = data?.categories ?? [];
     const byParent = new Map<string, CategoryForecast[]>();
@@ -38,13 +47,18 @@ export default function BudsjettScreen() {
     <Screen
       title="Budsjett"
       titleRight={
-        <View style={styles.monthSwitch}>
-          <TouchableOpacity onPress={() => setMonth(shiftMonth(month, -1))} hitSlop={10}>
-            <Text style={[styles.chevron, { color: colors.inkFaint }]}>‹</Text>
-          </TouchableOpacity>
-          <Text style={[styles.current, { color: colors.ink }]}>{formatMonthYear(month)}</Text>
-          <TouchableOpacity onPress={() => setMonth(shiftMonth(month, 1))} hitSlop={10}>
-            <Text style={[styles.chevron, { color: colors.inkFaint }]}>›</Text>
+        <View style={styles.headerRight}>
+          <View style={styles.monthSwitch}>
+            <TouchableOpacity onPress={() => setMonth(shiftMonth(month, -1))} hitSlop={10}>
+              <Text style={[styles.chevron, { color: colors.inkFaint }]}>‹</Text>
+            </TouchableOpacity>
+            <Text style={[styles.current, { color: colors.ink }]}>{formatMonthYear(month)}</Text>
+            <TouchableOpacity onPress={() => setMonth(shiftMonth(month, 1))} hitSlop={10}>
+              <Text style={[styles.chevron, { color: colors.inkFaint }]}>›</Text>
+            </TouchableOpacity>
+          </View>
+          <TouchableOpacity onPress={() => router.push(`/ny-budsjettlinje?month=${month}`)} hitSlop={8}>
+            <Ionicons name="add-circle-outline" size={22} color={colors.inkSoft} />
           </TouchableOpacity>
         </View>
       }
@@ -64,21 +78,32 @@ export default function BudsjettScreen() {
           <SectionTitle>{parentName}</SectionTitle>
           <Card style={{ padding: 4 }}>
             {lines.map((line) => (
-              <View key={line.category_id} style={[styles.row, { borderBottomColor: colors.line }]}>
-                <StatusDot status={line.status} />
-                <Text style={[styles.name, { color: colors.ink }]}>{line.category_name}</Text>
-                <View style={{ alignItems: 'flex-end' }}>
-                  <Text
-                    style={[
-                      styles.spent,
-                      { color: line.spent_so_far > line.planned_amount ? colors.critical : colors.ink },
-                    ]}
-                  >
-                    {formatKr(line.spent_so_far)}
-                  </Text>
-                  <Text style={[styles.planned, { color: colors.inkFaint }]}>av {formatKr(line.planned_amount)}</Text>
+              <TouchableOpacity
+                key={line.category_id}
+                onPress={() =>
+                  router.push(
+                    `/ny-budsjettlinje?month=${month}&categoryId=${line.category_id}&plannedAmount=${line.planned_amount}`,
+                  )
+                }
+              >
+                <View style={[styles.row, { borderBottomColor: colors.line }]}>
+                  <StatusDot status={line.status} />
+                  <Text style={[styles.name, { color: colors.ink }]}>{line.category_name}</Text>
+                  <View style={{ alignItems: 'flex-end' }}>
+                    <Text
+                      style={[
+                        styles.spent,
+                        { color: line.spent_so_far > line.planned_amount ? colors.critical : colors.ink },
+                      ]}
+                    >
+                      {formatKr(line.spent_so_far)}
+                    </Text>
+                    <Text style={[styles.planned, { color: colors.inkFaint }]}>
+                      av {formatKr(line.planned_amount)}
+                    </Text>
+                  </View>
                 </View>
-              </View>
+              </TouchableOpacity>
             ))}
           </Card>
         </View>
@@ -88,7 +113,8 @@ export default function BudsjettScreen() {
 }
 
 const styles = StyleSheet.create({
-  monthSwitch: { flexDirection: 'row', alignItems: 'center', gap: 6, paddingBottom: 6 },
+  headerRight: { flexDirection: 'row', alignItems: 'center', gap: 14, paddingBottom: 6 },
+  monthSwitch: { flexDirection: 'row', alignItems: 'center', gap: 6 },
   chevron: { fontSize: 18, paddingHorizontal: 4 },
   current: { fontSize: 13, fontWeight: '600' },
   row: {
