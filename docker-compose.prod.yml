@@ -17,6 +17,14 @@ services:
       - db
     restart: unless-stopped
 
+  web:
+    build:
+      context: ./mobile
+      args:
+        EXPO_PUBLIC_API_URL: ${WEB_API_URL}
+        EXPO_PUBLIC_API_KEY: ${WEB_API_KEY}
+    restart: unless-stopped
+
   caddy:
     image: caddy:2
     ports:
@@ -28,6 +36,7 @@ services:
       - caddy_config:/config
     depends_on:
       - backend
+      - web
     restart: unless-stopped
 
 volumes:

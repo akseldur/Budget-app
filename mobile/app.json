@@ -20,7 +20,15 @@
       "predictiveBackGestureEnabled": false
     },
     "web": {
-      "favicon": "./assets/favicon.png"
+      "favicon": "./assets/favicon.png",
+      "name": "Budsjett",
+      "shortName": "Budsjett",
+      "lang": "nb",
+      "themeColor": "#144a43",
+      "backgroundColor": "#f4f6f8",
+      "display": "standalone",
+      "orientation": "portrait",
+      "output": "static"
     },
     "plugins": [
       "expo-router"

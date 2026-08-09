@@ -1,3 +1,7 @@
 206-81-22-59.nip.io {
     reverse_proxy backend:8000
 }
+
+app.206-81-22-59.nip.io {
+    reverse_proxy web:80
+}

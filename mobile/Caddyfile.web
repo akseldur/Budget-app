@@ -1,0 +1,13 @@
+:80
+
+root * /srv
+encode gzip
+
+# Expo sin statiske eksport navngir den dynamiske transaksjon-siden bokstavelig
+# "[id].html" - ekte forespørsler kommer som /transaksjon/<uuid>, så de må
+# skrives om til den filen før try_files ellers.
+@transaksjon path /transaksjon/*
+rewrite @transaksjon /transaksjon/[id].html
+
+try_files {path} {path}.html /index.html
+file_server
