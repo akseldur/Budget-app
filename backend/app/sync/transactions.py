@@ -14,7 +14,7 @@ from datetime import date as date_
 
 from sqlalchemy.orm import Session
 
-from app.categorization.engine import CategoryMatch, categorize
+from app.categorization.engine import categorize
 from app.db.models import Account, Category, Transaction, TransactionSplit
 
 
@@ -56,16 +56,21 @@ def parse_enablebanking_transaction(raw: dict) -> BankTransaction:
     )
 
 
-def _find_or_create_category(db: Session, match: CategoryMatch) -> Category:
-    parent = db.query(Category).filter_by(name=match.parent, parent_id=None).one_or_none()
+def get_or_create_category(db: Session, parent_name: str, child_name: str) -> Category:
+    """Finner eller oppretter en underkategori under en gitt foreldrekategori.
+
+    Brukes både av regelmotoren (automatisk, via CategoryMatch) og av
+    POST /categories (brukeren oppretter en kategori manuelt i appen).
+    """
+    parent = db.query(Category).filter_by(name=parent_name, parent_id=None).one_or_none()
     if parent is None:
-        parent = Category(name=match.parent, parent_id=None)
+        parent = Category(name=parent_name, parent_id=None)
         db.add(parent)
         db.flush()
 
-    child = db.query(Category).filter_by(name=match.child, parent_id=parent.id).one_or_none()
+    child = db.query(Category).filter_by(name=child_name, parent_id=parent.id).one_or_none()
     if child is None:
-        child = Category(name=match.child, parent_id=parent.id)
+        child = Category(name=child_name, parent_id=parent.id)
         db.add(child)
         db.flush()
 
@@ -91,7 +96,7 @@ def ingest_transactions(db: Session, account: Account, transactions: Iterable[Ba
             continue
 
         match = categorize(t.description)
-        category = _find_or_create_category(db, match) if match else None
+        category = get_or_create_category(db, match.parent, match.child) if match else None
 
         transaction = Transaction(
             account_id=account.id,

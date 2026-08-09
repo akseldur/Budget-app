@@ -57,7 +57,7 @@ export default function BudsjettScreen() {
               <Text style={[styles.chevron, { color: colors.inkFaint }]}>›</Text>
             </TouchableOpacity>
           </View>
-          <TouchableOpacity onPress={() => router.push(`/ny-budsjettlinje?month=${month}`)} hitSlop={8}>
+          <TouchableOpacity onPress={() => router.push(`/ny-kategori?month=${month}`)} hitSlop={8}>
             <Ionicons name="add-circle-outline" size={22} color={colors.inkSoft} />
           </TouchableOpacity>
         </View>
@@ -82,7 +82,7 @@ export default function BudsjettScreen() {
                 key={line.category_id}
                 onPress={() =>
                   router.push(
-                    `/ny-budsjettlinje?month=${month}&categoryId=${line.category_id}&plannedAmount=${line.planned_amount}`,
+                    `/ny-kategori?month=${month}&categoryId=${line.category_id}&plannedAmount=${line.planned_amount}`,
                   )
                 }
               >

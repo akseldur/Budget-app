@@ -131,6 +131,8 @@ export const api = {
   },
   categories: {
     list: () => request<Category[]>('/categories'),
+    create: (body: { parent_name: string; name: string }) =>
+      request<Category>('/categories', { method: 'POST', body: JSON.stringify(body) }),
   },
   budget: {
     upsertLine: (body: { month: string; category_id: string; planned_amount: number }) =>
