@@ -12,11 +12,12 @@ from app.security import require_api_key
 
 app = FastAPI(title="Budsjett-app API")
 
-# Kun relevant for Expo sin web-target under utvikling (native iOS bruker ikke
-# CORS) - begrenset til localhost, ikke "*", siden appen uansett er lokal/enkeltbruker.
+# Native iOS bruker ikke CORS - dette gjelder kun web-varianten av appen:
+# localhost under utvikling, og den driftede PWA-en på app.<ip>.nip.io i
+# produksjon. Ikke "*", siden appen uansett er enkeltbruker.
 app.add_middleware(
     CORSMiddleware,
-    allow_origin_regex=r"http://localhost:\d+",
+    allow_origin_regex=r"http://localhost:\d+|https://app\.206-81-22-59\.nip\.io",
     allow_methods=["*"],
     allow_headers=["*"],
 )
