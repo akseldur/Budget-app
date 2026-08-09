@@ -18,11 +18,10 @@ services:
     restart: unless-stopped
 
   web:
-    build:
-      context: ./mobile
-      args:
-        EXPO_PUBLIC_API_URL: ${WEB_API_URL}
-        EXPO_PUBLIC_API_KEY: ${WEB_API_KEY}
+    image: caddy:2-alpine
+    volumes:
+      - ./mobile/dist:/srv
+      - ./mobile/Caddyfile.web:/etc/caddy/Caddyfile
     restart: unless-stopped
 
   caddy:

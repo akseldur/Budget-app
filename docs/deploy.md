@@ -49,15 +49,29 @@ crontab -e
 ## Web-app (PWA)
 
 `mobile/` bygges også som en statisk web-eksport og driftes på
-`app.206-81-22-59.nip.io` (egen Caddy-container, se `mobile/Dockerfile` og
-`mobile/Caddyfile.web`) - dette er veien til å få appen på iPhonen uten
+`app.206-81-22-59.nip.io` - dette er veien til å få appen på iPhonen uten
 Apple Developer-konto ($99/år): åpne adressen i Safari én gang og
 "Legg til på Hjem-skjerm". Åpnes deretter i fullskjerm uten nettleser-UI.
 
 `EXPO_PUBLIC_API_URL`/`EXPO_PUBLIC_API_KEY` bakes inn i JS-bunten ved bygg
-(se `WEB_API_URL`/`WEB_API_KEY` i rot-`.env` på serveren, brukt av
-`docker-compose.prod.yml`s `web`-tjeneste). Siden dette er en statisk
+(se `mobile/.env.local`, samme verdier som `WEB_API_URL`/`WEB_API_KEY`
+tidligere brukt som Docker build-args). Siden dette er en statisk
 web-eksport er API-nøkkelen synlig for alle som åpner siden og ser på
 nettverkstrafikken - annerledes enn native-appen, der den kun lå lokalt på
 telefonen. Akseptabelt her siden appen kun eksponerer denne ene brukerens
 egne data og adressen ikke er publisert noe sted, men verdt å vite.
+
+**Bygges lokalt, ikke på serveren.** `web`-tjenesten i
+`docker-compose.prod.yml` er en ren `caddy:2-alpine` som bind-mounter en
+ferdigbygd `mobile/dist/`-mappe + `mobile/Caddyfile.web` - den bygger
+ingenting selv. Grunnen: et `npm install` + webpack-eksport for hele
+Expo-prosjektet er for tungt for en 1GB RAM-droplet og gjorde serveren
+ustabil/utilgjengelig over SSH under bygget. Denne Mac-en har rikelig med
+RAM, så eksporten skjer her og kun de ferdige statiske filene sendes over:
+
+```bash
+cd mobile && npx expo export --platform web
+rsync -avz --delete dist/ root@206.81.22.59:/opt/budsjett-app/mobile/dist/
+ssh -i ~/.ssh/id_ed25519_budsjett root@206.81.22.59 \
+  "cd /opt/budsjett-app && docker compose -f docker-compose.prod.yml up -d web"
+```
